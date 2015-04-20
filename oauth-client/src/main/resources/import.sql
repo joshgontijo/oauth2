@@ -1,0 +1,2 @@
+INSERT IGNORE INTO oauth_client.oauth_provider VALUES (1, '1234', 'app1-secr3et', 'Oauth Provider (name)', 'http://localhost:8080/oauth-client/redirect');
+INSERT IGNORE INTO oauth_client.oauth_client_user VALUES (1, 25, 'josue', 'Josue Gontijo', 'josue');
