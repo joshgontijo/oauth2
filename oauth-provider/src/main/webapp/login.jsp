@@ -19,8 +19,9 @@
                 </div>
 
                 <p>Return to: ${return_to}</p>
-                <p>redirect_uri: ${redirect_uri}</p>
+                <p>redirect_uri: ${redirect_uri}</p> 
                 <p>client_id ${client_id}</p>
+                <p>login error: ${loginErrorMessage}</p>
                 
                 <form method="post" action="login">
                     <input type="hidden" name="return_to" value="${return_to}" />

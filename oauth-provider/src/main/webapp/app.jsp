@@ -11,6 +11,8 @@
         </style>    
     </head>
     <body>
+
+
         <div class="container-fluid">
             <div class="col-md-4 col-md-offset-4">
 
@@ -20,19 +22,20 @@
 
                 <p>Este aplicativo deseja acessar suas informacoes:</p>
 
-                <label>Name: </label>${application.name}
+                <label>Name: </label>${app.name}
+                <br />
+                <label>Required access: </label>//TODO =)
 
                 <br>
 
-                <form method="post" action="authorize">
-                    <input type="hidden" name="granted" value="true"/><!-- the users granted access-->
-                    <input type="hidden" name="client_id" value="${application.clientId}"/>
-                    <input type="hidden" name="redirect_url" value="${application.redirectUrl}"/>
+                <form method="POST" action="authorize">
+                    <!-- Attributes are set from AuthorizeServlet -->
+                    <input type="hidden" name="redirect_uri" value="${redirect_uri}" />
+                    <input type="hidden" name="client_id" value="${client_id}" />
                     
-                    <button type="button" class="btn btn-large btn-warning">Nope</button>
-                    <button type="submit" class="btn btn-large btn-primary">Allow</button>
+                    <button type="submit" class="btn btn-large btn-warning" name="grant" value="denied">Nope</button>
+                    <button type="submit" class="btn btn-large btn-primary" name="grant" value="granted">Allow</button>
                 </form>
             </div>
-
     </body>
 </html>
