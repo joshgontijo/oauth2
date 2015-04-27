@@ -69,9 +69,11 @@ public class OAuthControl {
 
     }
 
-    public Authorization fetchAuthorization(String code) {
-        TypedQuery<Authorization> query = em.createQuery("SELECT auth FROM Authorization auth WHERE auth.code = :code", Authorization.class);
+    public Authorization fetchAuthorization(String code, String clientId, String clientSecret) {
+        TypedQuery<Authorization> query = em.createQuery("SELECT auth FROM Authorization auth WHERE auth.code = :code AND auth.application.clientId = :clientId AND auth.application.appSecret = :clientSecret", Authorization.class);
         query.setParameter("code", code);
+        query.setParameter("clientId", clientId);
+        query.setParameter("clientSecret", clientSecret);
         Authorization foundAuthorization = getSingleResult(query);
         return foundAuthorization;
     }

@@ -28,7 +28,8 @@
 
                 <br>
 
-                <form method="POST" action="authorize">
+                <!-- ref: http://stackoverflow.com/questions/16683877/form-action-sampleservlet-giving-me-exception-->
+                <form method="POST" action="${pageContext.request.contextPath}/oauth/authorize">
                     <!-- Attributes are set from AuthorizeServlet -->
                     <input type="hidden" name="redirect_uri" value="${redirect_uri}" />
                     <input type="hidden" name="client_id" value="${client_id}" />

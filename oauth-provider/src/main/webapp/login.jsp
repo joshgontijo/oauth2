@@ -22,12 +22,13 @@
                 <p>redirect_uri: ${redirect_uri}</p> 
                 <p>client_id ${client_id}</p>
                 <p>login error: ${loginErrorMessage}</p>
-                
-                <form method="post" action="login">
+
+                <!-- ref: http://stackoverflow.com/questions/16683877/form-action-sampleservlet-giving-me-exception-->
+                <form method="post" action="${pageContext.request.contextPath}/login">
                     <input type="hidden" name="return_to" value="${return_to}" />
                     <input type="hidden" name="redirect_uri" value="${redirect_uri}" />
                     <input type="hidden" name="client_id" value="${client_id}" />
-                    
+
                     <label>Username: </label> 
                     <input type="text" name="username" value="josue"/>
                     <br />

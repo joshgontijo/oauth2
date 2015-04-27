@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Josue
  */
-@WebServlet(name = "AuthorizeServlet", urlPatterns = {"/authorize"})
+@WebServlet(name = "AuthorizeServlet", urlPatterns = {"/oauth/authorize"})
 public class AuthorizeServlet extends HttpServlet {
 
     //internal (non-oauth) to check the user session
@@ -38,7 +38,7 @@ public class AuthorizeServlet extends HttpServlet {
     private static final String USER_GRANT_GRANTED = "granted";
 
     //This servlet URL
-    private static final String AUTHORIZE_URL = "/authorize";
+    private static final String AUTHORIZE_URL = "/oauth/authorize";
     private static final String AUTHORIZATION_JSP = "/app.jsp";
     private static final String LOGIN_JSP = "/login.jsp";
     private static final String APPLICATION_PARAM = "app";
