@@ -8,6 +8,8 @@ package com.josue.oauth.provider.entity;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -23,6 +25,13 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "oauth_authorization")
 public class Authorization {
+
+    public static enum Status {
+
+        ACTIVE,
+        APPLIED, //Sucessfully utilized
+        INACTIVE //expired or invalidated
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,15 +50,18 @@ public class Authorization {
     @OneToOne
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     public Authorization() {
     }
 
-    public Authorization(Integer id, String code, Date expires, Application application, User user) {
-        this.id = id;
+    public Authorization(String code, Date expires, Application application, User user, Status status) {
         this.code = code;
         this.expires = expires;
         this.application = application;
         this.user = user;
+        this.status = status;
     }
 
     public Integer getId() {
@@ -90,6 +102,14 @@ public class Authorization {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
 }

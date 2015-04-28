@@ -5,13 +5,12 @@
  */
 package com.josue.oauth.provider;
 
+import com.josue.oauth.provider.entity.AccessToken;
 import com.josue.oauth.provider.entity.Authorization;
 import com.josue.oauth.provider.entity.OAuthParam;
 import com.josue.oauth.provider.ex.BadVerificationCodeException;
 import com.josue.oauth.provider.ex.OAuthException;
 import java.io.IOException;
-import java.util.Date;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
@@ -53,23 +52,19 @@ public class TokenGrantServlet extends HttpServlet {
         logger.log(Level.INFO, "RECEIVED TOKEN REQUEST FOR CODE {0}", code);
 
         //Validate the request
-        Authorization foundAuthProcess = control.fetchAuthorization(code, clientId, clientSecret);
-        if (foundAuthProcess == null) {
-            sendErrorResponse(response, new BadVerificationCodeException());
-            return;
-        } else if (foundAuthProcess.getExpires().before(new Date())) {
-            sendErrorResponse(response, new BadVerificationCodeException());
+        Authorization foundAuthProcess;
+        try {
+            foundAuthProcess = control.validateAuthorization(code, clientId, clientSecret);
+        } catch (BadVerificationCodeException ex) {
+            sendErrorResponse(response, ex);
             return;
         }
 
-        //Generate Token response
-        String accessToken = String.valueOf(UUID.randomUUID());
-        String refreshToken = String.valueOf(UUID.randomUUID());
-        int expiresIn = 86400;
+        AccessToken createdAccessToken = control.createAccessToken(foundAuthProcess);
 
-        JsonObject responseJson = Json.createObjectBuilder().add(OAuthParam.ACCESS_TOKEN, accessToken)
-                .add(OAuthParam.REFRESH_TOKEN, refreshToken)
-                .add(OAuthParam.EXPIRES_IN, expiresIn).build();
+        JsonObject responseJson = Json.createObjectBuilder().add(OAuthParam.ACCESS_TOKEN, createdAccessToken.getToken())
+                .add(OAuthParam.REFRESH_TOKEN, createdAccessToken.getRefreshToken())
+                .add(OAuthParam.EXPIRES_IN, createdAccessToken.getExpiresIn()).build();
 
         response.setContentType("application/json");
         response.getWriter().print(responseJson);
@@ -80,6 +75,7 @@ public class TokenGrantServlet extends HttpServlet {
         JsonObject responseJson = Json.createObjectBuilder().add("error", exception.getError())
                 .add("error_description", exception.getMessage()).build();
 
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         response.setContentType("application/json");
         response.getWriter().print(responseJson);
     }

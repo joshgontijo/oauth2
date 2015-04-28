@@ -35,6 +35,9 @@ public class RedirectServlet extends HttpServlet {
     //TODO check oauth names
     private static final String TEMP_CODE_PARAM = "code";
 
+    private static final String ERROR_CODE = "error";
+    private static final String ERROR_DESCRIPTION = "description";
+
     @PersistenceContext
     EntityManager em;
 
@@ -44,12 +47,17 @@ public class RedirectServlet extends HttpServlet {
 
         String code = (String) request.getParameter(TEMP_CODE_PARAM);
 
+        String errorCode = (String) request.getParameter(ERROR_CODE);
+
         if (code != null) {
             logger.log(Level.INFO, "RECEIVE CODE: {0}", code);
             requestToken(code);
 
             //redirect to the success page
             request.getRequestDispatcher("success.jsp").forward(request, response);
+        } else if (errorCode != null) {
+            String errorDescription = (String) request.getParameter(ERROR_DESCRIPTION);
+            logger.log(Level.INFO, "ERROR: {0} - DESCRIPTION: {1}", new Object[]{errorCode, errorDescription});
         }
 
     }
@@ -69,19 +77,20 @@ public class RedirectServlet extends HttpServlet {
                 .add("code", code)
                 .add("redirect_uri", oauthProvider.getRedirectUrl()).build();
 
-        Response response = ClientBuilder.newClient().target("http://localhost:8080/oauth-provider")
-                .path("oauth").path("token").request().post(Entity.entity(jsonObject, MediaType.APPLICATION_JSON), Response.class);
+        Response response = ClientBuilder.newClient().target(oauthProvider.getProviderOAuthUrl())
+                .path("token").request().post(Entity.entity(jsonObject, MediaType.APPLICATION_JSON), Response.class);
 
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
             //handle errors
             JsonObject errorJson = response.readEntity(JsonObject.class);
             logger.log(Level.INFO, "*** UNSUCCESSFUL ***");
             logger.log(Level.INFO, "JSON: {0}", errorJson.toString());
-        }
-        JsonObject successJson = response.readEntity(JsonObject.class);
+        } else {
+            JsonObject successJson = response.readEntity(JsonObject.class);
 
-        logger.log(Level.INFO, "ACCESS TOKEN SUCESSFUL RECEVIED !!!");
-        logger.log(Level.INFO, "JSON: {0}", successJson.toString());
+            logger.log(Level.INFO, "ACCESS TOKEN SUCESSFUL RECEVIED !!!");
+            logger.log(Level.INFO, "JSON: {0}", successJson.toString());
+        }
 
 //        target.request(MediaType.APPLICATION_JSON).post(null)
     }

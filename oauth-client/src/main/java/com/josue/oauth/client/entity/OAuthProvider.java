@@ -37,6 +37,9 @@ public class OAuthProvider implements Serializable {
     @Column(name = "redirect_url")
     private String redirectUrl;
 
+    @Column(name = "provider_oauth_url")
+    private String providerOAuthUrl;
+
     public OAuthProvider() {
     }
 
@@ -86,6 +89,14 @@ public class OAuthProvider implements Serializable {
 
     public void setRedirectUrl(String redirectUrl) {
         this.redirectUrl = redirectUrl;
+    }
+
+    public String getProviderOAuthUrl() {
+        return providerOAuthUrl;
+    }
+
+    public void setProviderOAuthUrl(String providerOAuthUrl) {
+        this.providerOAuthUrl = providerOAuthUrl;
     }
 
 }

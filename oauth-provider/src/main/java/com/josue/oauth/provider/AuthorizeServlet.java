@@ -9,7 +9,8 @@ import com.josue.oauth.provider.entity.Application;
 import com.josue.oauth.provider.entity.Authorization;
 import com.josue.oauth.provider.entity.OAuthParam;
 import com.josue.oauth.provider.entity.User;
-import com.josue.oauth.provider.ex.InvalidClientCredException;
+import com.josue.oauth.provider.ex.AlreadyAuthorizedException;
+import com.josue.oauth.provider.ex.BadVerificationCodeException;
 import com.josue.oauth.provider.ex.OAuthException;
 import com.josue.oauth.provider.ex.URLMismatchExcetion;
 import java.io.IOException;
@@ -70,21 +71,29 @@ public class AuthorizeServlet extends HttpServlet {
         }
 
         //Attributes should be stored to the session, not to the request, since login attempt can fail
-        if (request.getSession().getAttribute(LOGGED_USER) == null) { //user not logged in
+        User loggedUser = (User) request.getSession().getAttribute(LOGGED_USER);
+        if (loggedUser == null) { //user not logged in
 
             request.setAttribute(RETURN_TO, AUTHORIZE_URL);//return to this servlet, but now logged in
             request.getRequestDispatcher(LOGIN_JSP).forward(request, response);
         } else {// here the session should contains a user
             Application foundApplication = control.fetchApplication(clientId);
             if (foundApplication == null) {
-                sendErrorResponse(response, redirectUri, new InvalidClientCredException());
+                sendErrorResponse(response, redirectUri, new BadVerificationCodeException());
                 return;
             } else if (!foundApplication.getRedirectUrl().equals(redirectUri)) {
                 sendErrorResponse(response, redirectUri, new URLMismatchExcetion());
                 return;
             }
-            request.setAttribute(APPLICATION_PARAM, foundApplication);
-            request.getRequestDispatcher(AUTHORIZATION_JSP).forward(request, response);
+
+            //Application already have permission, dont proceed...
+            if (control.alreadyAuthorized(loggedUser.getId(), foundApplication.getId())) {
+                sendErrorResponse(response, redirectUri, new AlreadyAuthorizedException());
+            } else {
+                request.setAttribute(APPLICATION_PARAM, foundApplication);
+                request.getRequestDispatcher(AUTHORIZATION_JSP).forward(request, response);
+            }
+
         }
     }
 

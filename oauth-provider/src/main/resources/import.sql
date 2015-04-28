@@ -1,2 +1,2 @@
-INSERT IGNORE INTO oauth_provider.oauth_user VALUES (1, 25, 'josue', 'Josue Eduardo', 'josue');
-INSERT IGNORE INTO oauth_provider.oauth_application VALUES (1, 'app1-secr3et', '1234', 'Test App 1', 'http://localhost:8080/oauth-client/redirect');
+INSERT IGNORE INTO oauth_provider.oauth_user (id, age, login, `name`, password) VALUES (1, 25, 'josue', 'Josue Eduardo', 'josue');
+INSERT IGNORE INTO oauth_provider.oauth_application (id, app_secret, client_id, `name`, redirect_url) VALUES (1, 'app1-secr3et', '1234', 'Test App 1', 'http://localhost:8080/oauth-client/redirect');
