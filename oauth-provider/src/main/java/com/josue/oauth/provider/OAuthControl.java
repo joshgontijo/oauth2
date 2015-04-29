@@ -82,7 +82,7 @@ public class OAuthControl {
             } else if (foundAuthorization.getStatus() == Authorization.Status.INACTIVE
                     || foundAuthorization.getStatus() == Authorization.Status.APPLIED) {
                 //revoke the access token in case of multiple request by the same code
-                invalidateAccessToken(foundAuthorization);
+                invalidateAccessTokenByAuthorization(foundAuthorization);
                 throw new BadVerificationCodeException();
             } else if (!foundAuthorization.getApplication().getClientId().equals(clientId)
                     || !foundAuthorization.getApplication().getAppSecret().equals(clientSecret)) {
@@ -117,15 +117,13 @@ public class OAuthControl {
     }
 
     @Transactional
-    public void invalidateAuthorization(Authorization auth
-    ) {
+    public void invalidateAuthorization(Authorization auth) {
         em.refresh(auth);
         auth.setStatus(Authorization.Status.INACTIVE);
     }
 
     @Transactional
-    public void invalidateAccessToken(Authorization auth
-    ) {
+    public void invalidateAccessTokenByAuthorization(Authorization auth) {
         TypedQuery<AccessToken> query = em.createQuery("SELECT at FROM AccessToken at WHERE at.authorization.code = :code", AccessToken.class);
         query.setParameter("code", auth.getCode());
         AccessToken accessToken = getSingleResult(query);
@@ -136,8 +134,18 @@ public class OAuthControl {
     }
 
     @Transactional
-    public AccessToken createAccessToken(Authorization authorization
-    ) {
+    public void invalidateAccessTokenByToken(Integer accessTokenId) {
+        AccessToken foundAccessToken = em.find(AccessToken.class, accessTokenId);
+        if (foundAccessToken != null) {
+            if (foundAccessToken.getStatus() == AccessToken.Status.ACTIVE) {
+                foundAccessToken.setStatus(AccessToken.Status.REVOKED);
+                em.merge(foundAccessToken);
+            }
+        }
+    }
+
+    @Transactional
+    public AccessToken createAccessToken(Authorization authorization) {
         //Generate Token response
         String token = String.valueOf(UUID.randomUUID());
         String refreshToken = String.valueOf(UUID.randomUUID());
@@ -164,6 +172,13 @@ public class OAuthControl {
         query.setParameter("userId", userId);
         query.setParameter("clientAppId", clientAppId);
         return getSingleResult(query) != null;
+    }
+
+    public List<AccessToken> listAuthorizedApplications(Integer userId) {
+        TypedQuery<AccessToken> query = em.createQuery("SELECT at FROM AccessToken at WHERE at.resourceOwner.id = :id", AccessToken.class);
+        query.setParameter("id", userId);
+        List<AccessToken> resultList = query.getResultList();
+        return resultList;
     }
 
 }

@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.josue.oauth.provider;
+package com.josue.oauth.resource;
 
+import com.josue.oauth.provider.AuthorizeServlet;
+import com.josue.oauth.provider.OAuthControl;
 import com.josue.oauth.provider.entity.OAuthParam;
 import com.josue.oauth.provider.entity.User;
 import java.io.IOException;
@@ -32,6 +34,23 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        String returnTo = request.getParameter(AuthorizeServlet.RETURN_TO);
+        if (returnTo == null || "".equals(returnTo)) {
+            String username = request.getParameter(USERNAME);
+            String password = request.getParameter(PASSWORD);
+            User foundUser = control.loginUser(username, password);
+            if (foundUser == null) {
+                request.getRequestDispatcher("/login.jsp").forward(request, response);
+            } else {
+                request.getSession().setAttribute(AuthorizeServlet.LOGGED_USER, foundUser);
+                request.getRequestDispatcher("/dashboard").forward(request, response);
+                return;
+            }
+        }
+        oauthLoginFlow(request, response);
+    }
+
+    private void oauthLoginFlow(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String returnTo = request.getParameter(AuthorizeServlet.RETURN_TO);
 
         String username = request.getParameter(USERNAME);
@@ -70,8 +89,7 @@ public class LoginServlet extends HttpServlet {
 
             request.setAttribute("loginErrorMessage", "Invalid credentials");
 
-            request.getRequestDispatcher("/login.jsp").include(request, response);
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
-
     }
 }
