@@ -40,6 +40,7 @@ public class LoginServlet extends HttpServlet {
             String password = request.getParameter(PASSWORD);
             User foundUser = control.loginUser(username, password);
             if (foundUser == null) {
+                request.setAttribute("loginErrorMessage", "Invalid credentials");
                 request.getRequestDispatcher("/login.jsp").forward(request, response);
             } else {
                 request.getSession().setAttribute(AuthorizeServlet.LOGGED_USER, foundUser);

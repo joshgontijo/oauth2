@@ -33,7 +33,7 @@ public class DashboardServlet extends HttpServlet {
 
         User loggedUser = (User) request.getSession().getAttribute(LOGGED_USER);
         if (loggedUser == null) {
-            request.getRequestDispatcher("/login.jsp").include(request, response);
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
             return;
         }
         List<AccessToken> tokens = control.listAuthorizedApplications(loggedUser.getId());
