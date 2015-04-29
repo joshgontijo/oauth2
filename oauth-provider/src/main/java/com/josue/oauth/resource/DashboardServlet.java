@@ -50,10 +50,11 @@ public class DashboardServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = (String) request.getParameter("action");
-        String tokenId = (String) request.getParameter("tokenId");
+        String action = request.getParameter("action");
+        String tokenId = request.getParameter("tokenId");
         if ("revoke".equals(action) && !"".equals(tokenId)) {
             control.invalidateAccessTokenByToken(Integer.valueOf(tokenId));
+            request.getRequestDispatcher("/dashboard.jsp").forward(request, response);
         } else {
             processRequest(request, response);
         }

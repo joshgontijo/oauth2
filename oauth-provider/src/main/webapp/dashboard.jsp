@@ -25,20 +25,27 @@
             <tbody>
                 <tr>
                     <th>Application name</th>
+                    <th>Status</th>
                     <th>Revoke</th>
                 </tr>
-            <c:forEach items="${tokenz}" var="token">
-                <tr>
-                    <td><c:out value="${token.application.name}" /></td>
-                <td>
-                    <form method="POST" action="${pageContext.request.contextPath}/dashboard">
-                        <input type="hidden" name="tokenId" value="${token.id}" />
-                        <input type="submit" value="Revoke">
-                    </form>
-                </td>
-                </tr>
-            </c:forEach>
-        </tbody>
-    </table>
-</body>
+                <c:forEach items="${tokenz}" var="token">
+                    <tr>
+                        <td>
+                            <c:out value="${token.application.name}" />
+                        </td>
+                        <td>
+                            <c:out value="${token.status}" />
+                        </td>
+                        <td>
+                            <form method="POST" action="${pageContext.request.contextPath}/dashboard">
+                                <input type="hidden" name="tokenId" value="${token.id}" /> 
+                                <input type="submit" name="action" value="revoke" 
+                                       <c:if test="${token.status != 'ACTIVE'}"><c:out value="disabled='disabled'"/></c:if>>
+                            </form>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </body>
 </html>
